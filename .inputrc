@@ -1,0 +1,2 @@
+#!/bin/bash
+kaggle models instances versions download web4app/claudeopus/transformers/default/1
