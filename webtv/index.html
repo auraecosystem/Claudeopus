@@ -1,0 +1,108 @@
+<!-- ... existing code ... -->
+        <!-- Overlay for CRT screen curve and scanlines -->
+        <div id="crt-overlay" class="absolute inset-0 pointer-events-none z-10 crt-overlay opacity-30 shadow-[inset_0_0_100px_rgba(0,0,0,0.9)] transition-all duration-300"></div>
+
+        <!-- TV Screen Area -->
+        <div class="relative w-full h-full bg-black overflow-hidden flex items-center justify-center rounded-[2rem] sm:rounded-[3rem] shadow-[inset_0_0_50px_rgba(0,0,0,1)]">
+            
+            <!-- Video Element (The Main Stream) -->
+            <video id="tv-video" class="absolute w-full h-full object-cover transition-opacity duration-300 z-[1] opacity-0" autoplay playsinline></video>
+            
+            <!-- NEW: Osiris AI Interaction iFrame for advanced LLM interactions -->
+            <iframe id="osiris-iframe" src="https://osirisai.live" class="absolute w-full h-full object-cover z-[1] opacity-0 transition-opacity duration-300 hidden" allow="camera; microphone; fullscreen; display-capture"></iframe>
+
+            <!-- Loading Spinner / Static -->
+            <div id="static-overlay" class="absolute inset-0 z-[2] opacity-0 pointer-events-none transition-opacity duration-[20ms] flex items-center justify-center">
+<!-- ... existing code ... -->
+            <!-- On-Screen Display (OSD) UI Layer -->
+            <div id="osd-layer" class="absolute inset-0 z-20 pointer-events-none p-4 sm:p-8 flex flex-col justify-between opacity-0 transition-opacity duration-300">
+                <!-- Top Row OSD -->
+                <div class="flex justify-between items-start">
+<!-- ... existing code ... -->
+        const upNextBtn = document.getElementById('upnext-btn');
+        const upNextModal = document.getElementById('upnext-modal');
+        const upNextCloseBtn = document.getElementById('upnext-close-btn');
+        const upNextContent = document.getElementById('upnext-content');
+
+        const osirisIframe = document.getElementById('osiris-iframe');
+
+        const chatToggleBtn = document.getElementById('chat-toggle-btn');
+        const chatModal = document.getElementById('chat-modal');
+        const chatCloseBtn = document.getElementById('chat-close-btn');
+<!-- ... existing code ... -->
+        ];
+
+        // --- Core TV Functions ---
+        function changeChannel(index) {
+            clearTimeout(videoTimer);
+            if (!isOn) return;
+            
+            showStatic();
+            currentChannelIndex = index;
+            const channel = CHANNELS[currentChannelIndex];
+            
+            updateOSD(channel);
+            osdLayer.classList.remove('opacity-0');
+            
+            video.classList.add('opacity-0');
+            osirisIframe.classList.add('opacity-0');
+
+            setTimeout(() => {
+                if (channel.id === '04') {
+                     // Osiris AI channel special handling
+                     video.pause();
+                     video.classList.add('hidden');
+                     osirisIframe.classList.remove('hidden');
+                     setTimeout(() => {
+                         osirisIframe.classList.remove('opacity-0');
+                         hideStatic();
+                     }, 500); // Give the iframe a tiny moment to start rendering
+                } else {
+                     // Standard video handling
+                     osirisIframe.classList.add('hidden');
+                     video.classList.remove('hidden');
+                     
+                     // Reset video source completely
+                     video.pause();
+                     video.removeAttribute('src');
+                     video.load();
+                     
+                     videoTimer = setTimeout(() => {
+                         video.src = channel.src;
+                         video.loop = true;
+                         video.muted = false; // We manage volume globally
+                         video.volume = currentVolume / 100;
+                         
+                         video.play().then(() => {
+                             video.classList.remove('opacity-0');
+                             hideStatic();
+                             
+                             // Small random chance to fail playing (glitch)
+                             if(Math.random() < 0.05) {
+                                 setTimeout(() => showStatic(), 2000);
+                                 setTimeout(() => hideStatic(), 3500);
+                             }
+                             
+                         }).catch(e => {
+                             console.error("Video play failed:", e);
+                             showStatic(); // Keep static if it fails
+                         });
+                     }, 600); // 600ms of static between channels
+                }
+            }, 50);
+            
+            resetOSDTimeout();
+            if (teletextVisible) generateTeletext(channel);
+        }
+
+        function showStatic() {
+<!-- ... existing code ... -->
+            { id: '01', name: 'RETRO WAVE', src: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4', color: 'text-pink-400', description: 'Synthwave music visuals and 80s aesthetics.' },
+            { id: '02', name: 'NATURE DOCS', src: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4', color: 'text-green-400', description: 'Exploring the serene wilderness and animal kingdoms.' },
+            { id: '03', name: 'URBAN BEATS', src: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4', color: 'text-yellow-400', description: 'City life, fast cars, and lo-fi hip hop backgrounds.' },
+            { id: '04', name: 'OSIRIS AI LIVE', src: '', color: 'text-purple-400', description: 'Advanced AI LLM interaction model and navigation interface.' },
+            { id: '99', name: 'TEST PATTERN', src: 'https://storage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4', color: 'text-gray-400', description: 'Network calibration and emergency broadcast systems.' }
+        ];
+
+        // --- Core TV Functions ---
+<!-- ... existing code ... -->
